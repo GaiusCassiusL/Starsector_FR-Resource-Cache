@@ -98,7 +98,7 @@ No save data or mod files are changed by the cache.
 
 | Message or symptom | Meaning / fix |
 | --- | --- |
-| `Fast Rendering ResourceHandle is not the supported build` | Install the Fast Rendering version named in the cache agent's release notes, or remove the cache agent until a compatible release is available. |
+| `Fast Rendering ResourceHandle is not the supported build` | Use an older version of Fast Rendering until the cache agent is updated. |
 | `Fast Rendering ResourceHandle was never loaded` | Fast Rendering is not installed correctly or the game was not started with `fr.bat`. |
 | `another process owns the cache` | Another Starsector process is using the cache. Close it and restart; this launch safely uses the original files. |
 | The game does not start after editing `fr.vmparams` | Confirm the JAR is in `starsector-core`, the filename matches exactly, and each `-javaagent` entry is on its own line. |
