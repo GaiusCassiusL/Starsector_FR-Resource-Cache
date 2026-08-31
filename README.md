@@ -20,7 +20,7 @@ The agent verifies Fast Rendering's resource-loader class before changing it. If
 
    ```text
    Starsector/
-   ├── fr-resource-cache/
+   ├── mods/
    └── starsector-core/
        ├── fr-resource-cache-agent.jar
        ├── fr.agent.jar
