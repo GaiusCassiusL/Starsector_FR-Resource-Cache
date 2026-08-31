@@ -31,7 +31,7 @@ The agent verifies Fast Rendering's resource-loader class before changing it. If
 
 ### Java 28 `Configure_Me.cmd` setup
 
-If you use the Java 28 `ConfigureMme.cmd` mod, run `Configure_Me.cmd` after copying the JAR into `starsector-core`. The configuration script detects the JAR and gives you the option to enable the resource-cache agent . No manual `fr.vmparams` changes are required.
+If you use the [Mikohime Unofficial Java 28 Configurator](https://github.com/GaiusCassiusL/Starsector_Mikohime-Unofficial-Java28-Configurator) mod, run `Configure_Me.cmd` after copying the `fr-resource-cache-agent.jar` into `starsector-core`. The configuration script detects the JAR and gives you the option to enable the resource-cache agent . No manual `fr.vmparams` changes are required.
 
 After the script finishes, start Starsector normally with the `Miko_Rouge.bat`
 
@@ -99,7 +99,7 @@ No save data or mod files are changed by the cache.
 | Message or symptom | Meaning / fix |
 | --- | --- |
 | `Fast Rendering ResourceHandle is not the supported build` | Use an older version of Fast Rendering until the cache agent is updated. |
-| `Fast Rendering ResourceHandle was never loaded` | Fast Rendering is not installed correctly or the game was not started with `fr.bat`. |
+| `Fast Rendering ResourceHandle was never loaded` | Fast Rendering is not installed correctly or the game was not started with `fr.bat` or `Miko_Rouge.bat`. |
 | `another process owns the cache` | Another Starsector process is using the cache. Close it and restart; this launch safely uses the original files. |
 | The game does not start after editing `fr.vmparams` | Confirm the JAR is in `starsector-core`, the filename matches exactly, and each `-javaagent` entry is on its own line. |
 | Startup is not faster on the first launch | This is expected: the initial launch must populate the cache. Compare later launches instead. |
