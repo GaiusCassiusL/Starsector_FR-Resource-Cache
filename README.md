@@ -46,11 +46,11 @@ If you are not using the Java 28 configuration script:
    -javaagent:fr.agent.jar
    ```
 
-3. Add the resource-cache agent on the next line:
+3. Add the resource-cache agent on the line before `-javaagent:fr.agent.jar`:
 
    ```text
+   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\\fr-resource-cache,flushDelaySeconds=30,memoryCacheMiB=128,maxFileSize=1048576
    -javaagent:fr.agent.jar
-   -javaagent:fr-resource-cache-agent.jar
    ```
 
 4. Save the file and start Starsector with `fr.bat`.
