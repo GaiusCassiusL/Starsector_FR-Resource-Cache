@@ -160,8 +160,8 @@ final class AgentConfig {
                 case "manual": {
                     return MANUAL;
                 }
-                case "disabled": 
-                case "off": 
+                case "disabled":
+                case "off":
                 case "none": {
                     return DISABLED;
                 }

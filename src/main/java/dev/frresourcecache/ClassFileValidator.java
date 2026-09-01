@@ -57,8 +57,8 @@ final class ClassFileValidator {
                     input.readUnsignedShort();
                     continue block13;
                 }
-                case 9: 
-                case 10: 
+                case 9:
+                case 10:
                 case 11: {
                     input.readUnsignedShort();
                     input.readUnsignedShort();
@@ -68,12 +68,12 @@ final class ClassFileValidator {
                     hashMap3.put(n2, new int[]{input.readUnsignedShort(), input.readUnsignedShort()});
                     continue block13;
                 }
-                case 3: 
+                case 3:
                 case 4: {
                     input.readInt();
                     continue block13;
                 }
-                case 5: 
+                case 5:
                 case 6: {
                     input.readLong();
                     ++n2;
@@ -88,13 +88,13 @@ final class ClassFileValidator {
                     input.readUnsignedShort();
                     continue block13;
                 }
-                case 17: 
+                case 17:
                 case 18: {
                     input.readUnsignedShort();
                     input.readUnsignedShort();
                     continue block13;
                 }
-                case 19: 
+                case 19:
                 case 20: {
                     input.readUnsignedShort();
                     continue block13;
