@@ -103,3 +103,11 @@ No save data or mod files are changed by the cache.
 | `another process owns the cache` | Another Starsector process is using the cache. Close it and restart; this launch safely uses the original files. |
 | The game does not start after editing `fr.vmparams` | Confirm the JAR is in `starsector-core`, the filename matches exactly, and each `-javaagent` entry is on its own line. |
 | Startup is not faster on the first launch | This is expected: the initial launch must populate the cache. Compare later launches instead. |
+
+<div align="center">
+
+![American toad](https://a-z-animals.com/media/2021/05/American-Toad-header.jpg)
+
+*Image source: [A-Z Animals](https://a-z-animals.com/).*
+
+</div>
