@@ -18,30 +18,46 @@ implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(Module module, ClassLoader classLoader, String text, Class<?> clazz, ProtectionDomain protectionDomain, byte[] bytes) {
-        if (!"com/genir/renderer/overrides/loading/ResourceHandle".equals(text)) {
+    public byte[] transform(Module module, ClassLoader classLoader, String className, Class<?> clazz,
+            ProtectionDomain protectionDomain, byte[] classBytes) {
+        if (!CompatibilityRegistry.TARGET_CLASS.equals(className)) {
             return null;
         }
-        String otherText = TargetTransformer.sha256(bytes);
-        CompatibilityRegistry.SupportedBuild build = CompatibilityRegistry.find(otherText);
+
+        String classHash = TargetTransformer.sha256(classBytes);
+        if (!ClassFileValidator.isPlausibleResourceHandle(
+                classBytes,
+                CompatibilityRegistry.TARGET_CLASS,
+                CompatibilityRegistry.REQUIRED_METHODS,
+                CompatibilityRegistry.REQUIRED_FIELD_REFERENCES)) {
+            this.rejected.set(true);
+            Log.warn("Fast Rendering ResourceHandle failed structural compatibility checks "
+                    + "(SHA-256 " + classHash + "); leaving it unchanged");
+            return null;
+        }
+
+        CompatibilityRegistry.SupportedBuild build = CompatibilityRegistry.find(classHash);
+        String payloadResource = CompatibilityRegistry.COMPATIBILITY_PAYLOAD;
+        String compatibilityLabel;
         if (build == null) {
-            this.rejected.set(true);
-            Log.warn("Fast Rendering ResourceHandle is not a supported build (SHA-256 " + otherText + "); leaving it unchanged");
-            return null;
+            compatibilityLabel = "untested compatibility mode";
+            Log.warn("Fast Rendering ResourceHandle hash is not recognized (SHA-256 " + classHash + ").");
+            Log.warn("The class passed structural compatibility checks, so caching will be enabled in compatibility mode.");
+            Log.warn("This Fast Rendering build or fork has not been tested; disable FR Resource Cache first if resource-loading problems occur.");
         }
-        if (!ClassFileValidator.isPlausibleResourceHandle(bytes, "com/genir/renderer/overrides/loading/ResourceHandle", CompatibilityRegistry.REQUIRED_METHODS)) {
-            this.rejected.set(true);
-            Log.warn("Fast Rendering ResourceHandle matched a known hash but failed structural validation; leaving it unchanged");
-            return null;
+        else {
+            payloadResource = build.payloadResource;
+            compatibilityLabel = build.label;
         }
-        byte[] otherBytes = this.loadPayload(build.payloadResource);
-        if (otherBytes == null) {
+
+        byte[] payloadBytes = this.loadPayload(payloadResource);
+        if (payloadBytes == null) {
             this.rejected.set(true);
             return null;
         }
         this.applied.set(true);
-        Log.info("installed packed-stream hook into Fast Rendering ResourceHandle (" + build.label + ")");
-        return otherBytes;
+        Log.info("installed packed-stream hook into Fast Rendering ResourceHandle (" + compatibilityLabel + ")");
+        return payloadBytes;
     }
 
     void printSummary() {

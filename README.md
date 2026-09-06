@@ -10,7 +10,9 @@ This is an add-on for Fast Rendering, not a standalone Starsector mod. It does n
 
 - Starsector with a working Fast Rendering installation
 
-The agent verifies Fast Rendering's resource-loader class before changing it. If the installed Fast Rendering build is not supported, the class is left unchanged and the game continues without resource caching.
+The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
+
+Fast Rendering v0.8.7 is explicitly recognized and tested as a compatible release.
 
 ## Installation
 
@@ -98,7 +100,8 @@ No save data or mod files are changed by the cache.
 
 | Message or symptom | Meaning / fix |
 | --- | --- |
-| `Fast Rendering ResourceHandle is not the supported build` | Use an older version of Fast Rendering until the cache agent is updated. |
+| `Fast Rendering ResourceHandle hash is not recognized` | The class passed structural checks and caching was enabled in untested compatibility mode. Disable FR Resource Cache first if resource-loading problems occur. |
+| `Fast Rendering ResourceHandle failed structural compatibility checks` | The installed build changed required APIs. Resource caching was not applied. |
 | `Fast Rendering ResourceHandle was never loaded` | Fast Rendering is not installed correctly or the game was not started with `fr.bat` or `Miko_Rouge.bat`. |
 | `another process owns the cache` | Another Starsector process is using the cache. Close it and restart; this launch safely uses the original files. |
 | The game does not start after editing `fr.vmparams` | Confirm the JAR is in `starsector-core`, the filename matches exactly, and each `-javaagent` entry is on its own line. |
