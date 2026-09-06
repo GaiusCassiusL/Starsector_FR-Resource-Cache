@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.4
+
+### Added
+
+- Added compatibility mode for unknown Fast Rendering builds and forks that retain the required `ResourceHandle` structure.
+- Added Fast Rendering v0.8.7 to the explicitly recognized compatible releases.
+
+### Changed
+
+- Unknown `ResourceHandle` hashes now use the standard cache payload when structural compatibility checks pass, rather than being rejected solely because their version is unrecognized.
+- Compatibility validation now checks the target class, superclass, required public instance methods, and required `FileHandle` field references before applying the cache hook.
+- Untested compatible builds now emit prominent startup warnings so users can identify compatibility mode in `starsector.log`.
+
+### Compatibility
+
+- Fast Rendering v0.8.5rc2, v0.8.7rc1, and v0.8.7 are explicitly recognized by their shared `ResourceHandle` SHA-256 hash.
+- Structurally incompatible Fast Rendering builds remain unchanged and continue without FR Resource Cache.
+
 ## v0.3
 
 ### Added

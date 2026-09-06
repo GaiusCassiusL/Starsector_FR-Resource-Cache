@@ -63,7 +63,7 @@ $manifestLines = @(
     'Can-Redefine-Classes: false'
     'Can-Retransform-Classes: false'
     'Implementation-Title: Fast Rendering Persistent Resource Cache Agent'
-    'Implementation-Version: 0.3.0'
+    'Implementation-Version: 0.4.0'
     'Created-By: reproducible build.ps1'
     ''
 )

@@ -6,18 +6,26 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 final class ClassFileValidator {
     private static final int MAGIC = -889275714;
+    private static final int ACC_PUBLIC = 0x0001;
+    private static final int ACC_STATIC = 0x0008;
 
     private ClassFileValidator() {
     }
 
-    static boolean isPlausibleResourceHandle(byte[] bytes, String text, Set<String> set) {
+    static boolean isPlausibleResourceHandle(byte[] bytes, String expectedClass, Set<String> requiredMethods,
+            Set<String> requiredFieldReferences) {
         try {
             ClassInfo classInfo = ClassFileValidator.parse(bytes);
-            return text.equals(classInfo.thisClass) && "java/io/InputStream".equals(classInfo.superClass) && classInfo.methodSignatures.containsAll(set);
+            return expectedClass.equals(classInfo.thisClass)
+                    && "java/io/InputStream".equals(classInfo.superClass)
+                    && classInfo.publicClass
+                    && classInfo.publicInstanceMethodSignatures.containsAll(requiredMethods)
+                    && classInfo.fieldReferences.containsAll(requiredFieldReferences);
         }
         catch (Exception exception) {
             return false;
@@ -38,7 +46,8 @@ final class ClassFileValidator {
         int n4 = input.readUnsignedShort();
         HashMap<Integer, String> hashMap = new HashMap<Integer, String>();
         HashMap<Integer, Integer> hashMap2 = new HashMap<Integer, Integer>();
-        HashMap<Integer, int[]> hashMap3 = new HashMap<Integer, int[]>();
+        HashMap<Integer, int[]> nameAndTypes = new HashMap<Integer, int[]>();
+        HashMap<Integer, int[]> fieldReferences = new HashMap<Integer, int[]>();
         block13: for (n2 = 1; n2 < n4; ++n2) {
             n = input.readUnsignedByte();
             switch (n) {
@@ -57,7 +66,10 @@ final class ClassFileValidator {
                     input.readUnsignedShort();
                     continue block13;
                 }
-                case 9:
+                case 9: {
+                    fieldReferences.put(n2, new int[]{input.readUnsignedShort(), input.readUnsignedShort()});
+                    continue block13;
+                }
                 case 10:
                 case 11: {
                     input.readUnsignedShort();
@@ -65,7 +77,7 @@ final class ClassFileValidator {
                     continue block13;
                 }
                 case 12: {
-                    hashMap3.put(n2, new int[]{input.readUnsignedShort(), input.readUnsignedShort()});
+                    nameAndTypes.put(n2, new int[]{input.readUnsignedShort(), input.readUnsignedShort()});
                     continue block13;
                 }
                 case 3:
@@ -104,7 +116,7 @@ final class ClassFileValidator {
                 }
             }
         }
-        input.readUnsignedShort();
+        int classAccess = input.readUnsignedShort();
         n2 = input.readUnsignedShort();
         n = input.readUnsignedShort();
         String text = hashMap.get(hashMap2.get(n2));
@@ -121,13 +133,32 @@ final class ClassFileValidator {
         HashSet<String> hashSet = new HashSet<String>();
         int n8 = input.readUnsignedShort();
         for (int i = 0; i < n8; ++i) {
-            input.readUnsignedShort();
+            int methodAccess = input.readUnsignedShort();
             int n9 = input.readUnsignedShort();
             int n10 = input.readUnsignedShort();
-            hashSet.add(hashMap.get(n9) + ":" + hashMap.get(n10));
+            if ((methodAccess & ACC_PUBLIC) != 0 && (methodAccess & ACC_STATIC) == 0) {
+                hashSet.add(hashMap.get(n9) + ":" + hashMap.get(n10));
+            }
             ClassFileValidator.skipAttributes(input);
         }
-        return new ClassInfo(text, superClass, hashSet);
+        HashSet<String> resolvedFieldReferences = new HashSet<>();
+        for (Map.Entry<Integer, int[]> entry : fieldReferences.entrySet()) {
+            int[] reference = entry.getValue();
+            String owner = hashMap.get(hashMap2.get(reference[0]));
+            int[] nameAndType = nameAndTypes.get(reference[1]);
+            if (owner == null || nameAndType == null) {
+                throw new IOException("invalid field reference in constant pool");
+            }
+            String name = hashMap.get(nameAndType[0]);
+            String descriptor = hashMap.get(nameAndType[1]);
+            resolvedFieldReferences.add(owner + "." + name + ":" + descriptor);
+        }
+        return new ClassInfo(
+                text,
+                superClass,
+                (classAccess & ACC_PUBLIC) != 0,
+                hashSet,
+                resolvedFieldReferences);
     }
 
     private static void skipAttributes(DataInputStream input) throws IOException {
@@ -150,12 +181,17 @@ final class ClassFileValidator {
     static final class ClassInfo {
         final String thisClass;
         final String superClass;
-        final Set<String> methodSignatures;
+        final boolean publicClass;
+        final Set<String> publicInstanceMethodSignatures;
+        final Set<String> fieldReferences;
 
-        ClassInfo(String text, String otherText, Set<String> set) {
-            this.thisClass = text;
-            this.superClass = otherText;
-            this.methodSignatures = set;
+        ClassInfo(String thisClass, String superClass, boolean publicClass,
+                Set<String> publicInstanceMethodSignatures, Set<String> fieldReferences) {
+            this.thisClass = thisClass;
+            this.superClass = superClass;
+            this.publicClass = publicClass;
+            this.publicInstanceMethodSignatures = publicInstanceMethodSignatures;
+            this.fieldReferences = fieldReferences;
         }
     }
 }
