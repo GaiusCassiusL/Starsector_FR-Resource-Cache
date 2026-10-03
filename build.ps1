@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string] $JdkHome = $env:JAVA_HOME,
-    [string] $OutputPath = (Join-Path $PSScriptRoot 'build\fr-resource-cache-agent.jar')
+    [string] $OutputPath = (Join-Path $PSScriptRoot 'build\fr-resource-cache-agent-0.5.0-test.1.jar')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -63,7 +63,7 @@ $manifestLines = @(
     'Can-Redefine-Classes: false'
     'Can-Retransform-Classes: false'
     'Implementation-Title: Fast Rendering Persistent Resource Cache Agent'
-    'Implementation-Version: 0.4.0'
+    'Implementation-Version: 0.5.0-test.1'
     'Created-By: reproducible build.ps1'
     ''
 )

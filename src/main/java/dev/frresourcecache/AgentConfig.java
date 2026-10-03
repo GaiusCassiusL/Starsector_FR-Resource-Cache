@@ -24,8 +24,14 @@ final class AgentConfig {
     final boolean forceCompact;
     final Path traceLogPath;
     final boolean statsVerbose;
+    final boolean asyncWrites;
+    final long writeQueueBytes;
+    final int writeQueueEntries;
 
-    private AgentConfig(Path path, Path path2, Path path3, long l, long l2, int n, Set<String> set, ValidationMode validationMode, CompactionMode compactionMode, double d, long l3, boolean bl, Path path4, boolean bl2) {
+    private AgentConfig(Path path, Path path2, Path path3, long l, long l2, int n, Set<String> set,
+            ValidationMode validationMode, CompactionMode compactionMode, double d, long l3,
+            boolean bl, Path path4, boolean bl2, boolean asyncWrites, long writeQueueBytes,
+            int writeQueueEntries) {
         this.gameRoot = path;
         this.installRoot = path2;
         this.cacheDir = path3;
@@ -40,6 +46,9 @@ final class AgentConfig {
         this.forceCompact = bl;
         this.traceLogPath = path4;
         this.statsVerbose = bl2;
+        this.asyncWrites = asyncWrites;
+        this.writeQueueBytes = writeQueueBytes;
+        this.writeQueueEntries = writeQueueEntries;
     }
 
     static AgentConfig parse(String arguments) {
@@ -85,10 +94,16 @@ final class AgentConfig {
                     : resolve(gameRoot, traceOption, defaultTracePath);
         }
         boolean statsVerbose = parseBool(options.get("statsVerbose"), false);
+        boolean asyncWrites = parseBool(options.get("asyncWrites"), true);
+        long writeQueueBytes =
+                parseLong(options.get("writeQueueMiB"), 32L, 1L, 1024L) * 1_048_576L;
+        int writeQueueEntries =
+                (int)parseLong(options.get("writeQueueEntries"), 256L, 1L, 4096L);
 
         return new AgentConfig(gameRoot, installRoot, cacheDir, maxFileSize, memoryLimit,
                 flushDelaySeconds, Set.copyOf(extensions), validationMode, compactionMode,
-                deadByteRatioThreshold, minDeadBytes, forceCompact, traceLogPath, statsVerbose);
+                deadByteRatioThreshold, minDeadBytes, forceCompact, traceLogPath, statsVerbose,
+                asyncWrites, writeQueueBytes, writeQueueEntries);
     }
 
     private static Path resolve(Path path, String text, Path path2) {

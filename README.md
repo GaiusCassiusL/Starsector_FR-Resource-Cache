@@ -12,13 +12,13 @@ This is an add-on for Fast Rendering, not a standalone Starsector mod. It does n
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
-Fast Rendering v0.8.7 is explicitly recognized and tested as a compatible release.
+Fast Rendering v0.8.8 is explicitly recognized and tested as a compatible release.
 
 ## Installation
 
 1. Install Fast Rendering. (Link is above)
-2. Download the latest `fr-resource-cache-agent.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
-3. Copy the JAR into the Starsector `starsector-core` directory, alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
+2. Download `fr-resource-cache-agent-0.5.0-test.1.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
+3. Rename it to `fr-resource-cache-agent.jar`, then copy it into the Starsector `starsector-core` directory alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
 
    ```text
    Starsector/
@@ -59,12 +59,30 @@ If you are not using the Java 28 configuration script:
 
 The first launch reads resources normally while building the cache. The improvement is most noticeable on subsequent launches.
 
+## v0.5 test behavior
+
+v0.5 writes new cache misses on one bounded background thread so the game can continue loading while the pack is updated. The queue retains at most 256 entries and 32 MiB by default. If either limit is reached, that entry is not persisted; the source read still succeeds and the agent can cache it on a later launch.
+
+The agent also records the first-access order of eligible resources. When compaction is next required, live pack entries are rewritten in the previous launch's startup order to favor sequential reads.
+
+Validation-mode changes now take effect for existing entries. Switching from `metadata` to `sampled` or `strong` upgrades entries as they are used, and the memory cache applies the selected fingerprint validation instead of relying only on size and modification time.
+
+Optional agent settings:
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `asyncWrites` | `true` | Set to `false` to persist cache misses synchronously. |
+| `writeQueueEntries` | `256` | Maximum number of queued writes. |
+| `writeQueueMiB` | `32` | Maximum source bytes retained by queued writes. |
+| `validationMode` | `metadata` | Select `metadata`, `sampled`, or `strong` validation. |
+
 ## How it works
 
 The cache is stored in `<Starsector>/fr-resource-cache` as:
 
 - `resources.pack` — cached resource contents
 - `resources.index` — source-file metadata and locations within the pack
+- `resources.order` — first-access order used by the next compaction
 - `cache.lock` — prevents multiple game processes from writing the cache at once
 
 Cached entries are checked against the source file's size and modification time. Changed resources are read from their original files and written back to the cache automatically. Unsupported, oversized, or otherwise ineligible files continue through Fast Rendering's normal file-loading path.
@@ -76,7 +94,7 @@ The cache is an optimization only. If it cannot be initialized, read, or written
 Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering console. A successful installation reports messages similar to:
 
 ```text
-[FR Resource Cache] agent v0.2.0 enabled; cache directory: ...
+[FR Resource Cache] agent v0.5.0-test.1 enabled; cache directory: ...
 [FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle
 ```
 

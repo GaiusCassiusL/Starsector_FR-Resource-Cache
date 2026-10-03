@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.5.0-test.1
+
+### Added
+
+- Added bounded asynchronous persistence for first-launch cache misses.
+- Added persistent startup access-order tracking and access-ordered pack compaction.
+- Added Fast Rendering v0.8.8 to the explicitly recognized compatible releases.
+
+### Changed
+
+- Cache hits now reuse one source metadata snapshot instead of repeating size and modification-time filesystem calls.
+- The writer queue defaults to 256 entries and 32 MiB; saturated writes are skipped rather than blocking startup.
+- Shutdown now drains queued writes before flushing the index and reports the pack size before closing it.
+
+### Fixed
+
+- Existing entries now upgrade when the configured validation mode changes from `metadata` to `sampled` or `strong`.
+- Memory-cache hits now enforce sampled or strong fingerprints, detecting same-size, same-timestamp source changes.
+- Scheduled index flushes and queued writes can no longer race pack closure during normal shutdown.
+
 ## v0.4
 
 ### Added

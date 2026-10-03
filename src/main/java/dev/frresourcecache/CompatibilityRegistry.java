@@ -19,7 +19,7 @@ final class CompatibilityRegistry {
     static final List<SupportedBuild> SUPPORTED_BUILDS = List.of(
             new SupportedBuild(
                     "6b29c9f634b756a1e0d0bdd3a69bd6f62758b62ec3d3a1d6f8635be628a60600",
-                    "Fast Rendering 0.8.5rc2 / 0.8.7rc1 / 0.8.7",
+                    "Fast Rendering 0.8.5rc2 / 0.8.7rc1 / 0.8.7 / 0.8.8",
                     COMPATIBILITY_PAYLOAD));
 
     private CompatibilityRegistry() {

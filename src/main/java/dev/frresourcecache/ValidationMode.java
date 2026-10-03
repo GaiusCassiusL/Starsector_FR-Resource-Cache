@@ -13,6 +13,10 @@ enum ValidationMode {
         this.id = n2;
     }
 
+    boolean isStrongerThan(ValidationMode other) {
+        return this.id > other.id;
+    }
+
     static ValidationMode fromId(int n) {
         for (ValidationMode validationMode : ValidationMode.values()) {
             if (validationMode.id != n) continue;

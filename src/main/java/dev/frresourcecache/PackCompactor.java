@@ -10,6 +10,9 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 
@@ -74,7 +77,8 @@ final class PackCompactor {
         return d2 >= d;
     }
 
-    static Result compact(Path path, Path path2, Path path3, FileChannel channel, Map<String, CacheEntry> map) throws IOException {
+    static Result compact(Path path, Path path2, Path path3, FileChannel channel,
+            Map<String, CacheEntry> map, Map<String, Integer> accessOrder) throws IOException {
         Path path4 = path.resolve(TMP_PACK);
         Path path5 = path.resolve(TMP_INDEX);
         Path path6 = path.resolve(MARKER);
@@ -84,9 +88,14 @@ final class PackCompactor {
         int n = 0;
         long l = 0L;
         long l2 = channel.size();
+        List<CacheEntry> orderedEntries = new ArrayList<>(map.values());
+        orderedEntries.sort(Comparator
+                .comparingInt((CacheEntry entry) ->
+                        accessOrder.getOrDefault(entry.key, Integer.MAX_VALUE))
+                .thenComparing(entry -> entry.key));
         try (FileChannel destinationChannel = FileChannel.open(path4, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, StandardOpenOption.READ);){
             long l3 = 0L;
-            for (CacheEntry cacheEntry : map.values()) {
+            for (CacheEntry cacheEntry : orderedEntries) {
                 if (!cacheEntry.withinBounds(l2)) {
                     ++n;
                     continue;
