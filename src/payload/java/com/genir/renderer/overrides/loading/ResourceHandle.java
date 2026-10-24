@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
@@ -26,12 +28,21 @@ public class ResourceHandle extends InputStream {
 
     public String getString() throws IOException {
         if (this.fileHandle.cachedContents == null) {
+            byte[] bytes;
             try {
-                this.fileHandle.cachedContents = new String(ResourcePackCache.read(this.fileHandle.file), StandardCharsets.UTF_8);
+                bytes = ResourcePackCache.read(this.fileHandle.file);
             }
-            catch (Exception exception) {
-                this.fileHandle.cachedContents =
-                        FileLoader.readStringVanilla(new FileInputStream(this.fileHandle.file));
+            catch (Exception | LinkageError exception) {
+                try (FileInputStream input = new FileInputStream(this.fileHandle.file)) {
+                    bytes = input.readAllBytes();
+                }
+            }
+            try {
+                this.fileHandle.cachedContents = StandardCharsets.UTF_8.newDecoder()
+                        .decode(ByteBuffer.wrap(bytes)).toString();
+            }
+            catch (CharacterCodingException exception) {
+                this.fileHandle.cachedContents = new String(bytes, StandardCharsets.UTF_8);
             }
             this.fileHandle.cachedContents = this.fileHandle.cachedContents.replaceAll("\\r", "");
         }
@@ -47,7 +58,12 @@ public class ResourceHandle extends InputStream {
             throw new IOException("stream closed");
         }
         if (this.fileStream == null) {
-            this.fileStream = ResourcePackCache.open(this.fileHandle.file);
+            try {
+                this.fileStream = ResourcePackCache.open(this.fileHandle.file);
+            }
+            catch (Exception | LinkageError exception) {
+                this.fileStream = new FileInputStream(this.fileHandle.file);
+            }
             this.streamOpened = true;
         }
         return this.fileStream;

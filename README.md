@@ -12,7 +12,7 @@ This is an add-on for Fast Rendering, not a standalone Starsector mod. It does n
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
-Fast Rendering v0.8.8 is explicitly recognized and tested as a compatible release.
+Fast Rendering v0.9.6 is explicitly recognized and tested as a compatible release; v0.8.8 is also recognized.
 
 ## Installation
 

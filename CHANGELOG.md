@@ -6,7 +6,7 @@
 
 - Added bounded asynchronous persistence for first-launch cache misses.
 - Added persistent startup access-order tracking and access-ordered pack compaction.
-- Added Fast Rendering v0.8.8 to the explicitly recognized compatible releases.
+- Added Fast Rendering v0.8.8 and v0.9.6 to the explicitly recognized compatible releases.
 
 ### Changed
 
@@ -19,6 +19,9 @@
 - Existing entries now upgrade when the configured validation mode changes from `metadata` to `sampled` or `strong`.
 - Memory-cache hits now enforce sampled or strong fingerprints, detecting same-size, same-timestamp source changes.
 - Scheduled index flushes and queued writes can no longer race pack closure during normal shutdown.
+- Fixed the cache-read fallback in the injected `ResourceHandle`, which called a method absent from Fast Rendering v0.9.6.
+- Agent startup, hook installation, and the injected `ResourceHandle` now fall back to original files on any error, so unrecognized or incompatible Fast Rendering builds cannot prevent the game from running.
+- Cached text decoding now matches Fast Rendering v0.9.6: strict UTF-8 first, then lenient decoding.
 
 ## v0.4
 

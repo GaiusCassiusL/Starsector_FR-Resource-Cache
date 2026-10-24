@@ -23,6 +23,21 @@ implements ClassFileTransformer {
         if (!CompatibilityRegistry.TARGET_CLASS.equals(className)) {
             return null;
         }
+        try {
+            return this.transformTarget(classBytes);
+        }
+        catch (Throwable throwable) {
+            this.rejected.set(true);
+            Log.warn("could not hook Fast Rendering ResourceHandle; leaving it unchanged: " + throwable);
+            return null;
+        }
+    }
+
+    private byte[] transformTarget(byte[] classBytes) {
+        String frVersion = System.getProperty("fr.version");
+        if (frVersion != null) {
+            Log.info("detected Fast Rendering version " + frVersion);
+        }
 
         String classHash = TargetTransformer.sha256(classBytes);
         if (!ClassFileValidator.isPlausibleResourceHandle(
