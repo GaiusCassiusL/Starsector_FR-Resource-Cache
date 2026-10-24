@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,6 +51,7 @@ public final class ResourcePackCache {
     private static Path indexPath;
     private static Path accessOrderPath;
     private static Map<String, Integer> previousAccessOrder = Map.of();
+    private static int lastSavedAccessCount;
 
     private ResourcePackCache() {
     }
@@ -68,6 +70,7 @@ public final class ResourcePackCache {
         CURRENT_ACCESS_ORDER.clear();
         ACCESS_SEQUENCE.set(0L);
         previousAccessOrder = Map.of();
+        lastSavedAccessCount = 0;
         DIRTY.set(false);
         WRITE_WARNING_REPORTED.set(false);
         PENDING_WRITE_BYTES.set(0L);
@@ -572,9 +575,32 @@ public final class ResourcePackCache {
     private static void flushQuietly() {
         try {
             ResourcePackCache.flushNow();
+            ResourcePackCache.saveAccessOrder();
         }
         catch (Throwable throwable) {
             Log.warn("background flush failed: " + String.valueOf(throwable));
+        }
+    }
+
+    // New accesses come first; previously known resources not seen this launch keep their old relative order after them.
+    private static synchronized void saveAccessOrder() {
+        int size = CURRENT_ACCESS_ORDER.size();
+        if (size == 0 || size == lastSavedAccessCount || accessOrderPath == null) {
+            return;
+        }
+        HashMap<String, Long> merged = new HashMap<>(CURRENT_ACCESS_ORDER);
+        long base = ACCESS_SEQUENCE.get();
+        for (Map.Entry<String, Integer> entry : previousAccessOrder.entrySet()) {
+            if (ENTRIES.containsKey(entry.getKey())) {
+                merged.putIfAbsent(entry.getKey(), base + entry.getValue());
+            }
+        }
+        try {
+            AccessOrder.save(accessOrderPath, merged);
+            lastSavedAccessCount = size;
+        }
+        catch (IOException exception) {
+            Log.warn("could not save resource access order: " + exception);
         }
     }
 
@@ -586,14 +612,7 @@ public final class ResourcePackCache {
         acceptingWrites = false;
         ResourcePackCache.stopWriter(true);
         ResourcePackCache.flushNow();
-        if (!CURRENT_ACCESS_ORDER.isEmpty() && accessOrderPath != null) {
-            try {
-                AccessOrder.save(accessOrderPath, CURRENT_ACCESS_ORDER);
-            }
-            catch (IOException exception) {
-                Log.warn("could not save resource access order: " + exception);
-            }
-        }
+        ResourcePackCache.saveAccessOrder();
         String packSize;
         synchronized (WRITE_LOCK) {
             packSize = packChannel == null ? "n/a" : ResourcePackCache.safePackSize();
@@ -616,7 +635,7 @@ public final class ResourcePackCache {
         }
         if (drain) {
             currentWriter.shutdown();
-            ResourcePackCache.awaitTermination(currentWriter, 60L);
+            ResourcePackCache.awaitTermination(currentWriter, 10L);
         }
         else {
             currentWriter.shutdownNow();

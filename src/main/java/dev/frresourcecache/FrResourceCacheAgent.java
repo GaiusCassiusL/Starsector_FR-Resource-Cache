@@ -3,7 +3,12 @@ package dev.frresourcecache;
 import java.lang.instrument.Instrumentation;
 
 public final class FrResourceCacheAgent {
-    public static final String VERSION = "0.5.0-test.1";
+    public static final String VERSION = resolveVersion();
+
+    private static String resolveVersion() {
+        String version = FrResourceCacheAgent.class.getPackage().getImplementationVersion();
+        return version != null ? version : "dev";
+    }
 
     private FrResourceCacheAgent() {
     }

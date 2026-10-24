@@ -12,12 +12,12 @@ This is an add-on for Fast Rendering, not a standalone Starsector mod. It does n
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
-Fast Rendering v0.9.6 is explicitly recognized and tested as a compatible release; v0.8.8 is also recognized.
+Fast Rendering v0.9.6 and v0.8.8 are explicitly recognized as compatible releases. Fast Rendering v0.9.6 requires Starsector 0.98a-RC8.
 
 ## Installation
 
 1. Install Fast Rendering. (Link is above)
-2. Download `fr-resource-cache-agent-0.5.0-test.1.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
+2. Download `fr-resource-cache-agent-0.5.0.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
 3. Rename it to `fr-resource-cache-agent.jar`, then copy it into the Starsector `starsector-core` directory alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
 
    ```text
@@ -59,7 +59,7 @@ If you are not using the Java 28 configuration script:
 
 The first launch reads resources normally while building the cache. The improvement is most noticeable on subsequent launches.
 
-## v0.5 test behavior
+## v0.5 behavior
 
 v0.5 writes new cache misses on one bounded background thread so the game can continue loading while the pack is updated. The queue retains at most 256 entries and 32 MiB by default. If either limit is reached, that entry is not persisted; the source read still succeeds and the agent can cache it on a later launch.
 
@@ -94,7 +94,7 @@ The cache is an optimization only. If it cannot be initialized, read, or written
 Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering console. A successful installation reports messages similar to:
 
 ```text
-[FR Resource Cache] agent v0.5.0-test.1 enabled; cache directory: ...
+[FR Resource Cache] agent v0.5.0 enabled; cache directory: ...
 [FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle
 ```
 

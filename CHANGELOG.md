@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.5.0-test.1
+## v0.5.0
 
 ### Added
 
@@ -12,7 +12,7 @@
 
 - Cache hits now reuse one source metadata snapshot instead of repeating size and modification-time filesystem calls.
 - The writer queue defaults to 256 entries and 32 MiB; saturated writes are skipped rather than blocking startup.
-- Shutdown now drains queued writes before flushing the index and reports the pack size before closing it.
+- Shutdown now drains queued writes (waiting at most 10 seconds) before flushing the index and reports the pack size before closing it.
 
 ### Fixed
 
@@ -22,6 +22,7 @@
 - Fixed the cache-read fallback in the injected `ResourceHandle`, which called a method absent from Fast Rendering v0.9.6.
 - Agent startup, hook installation, and the injected `ResourceHandle` now fall back to original files on any error, so unrecognized or incompatible Fast Rendering builds cannot prevent the game from running.
 - Cached text decoding now matches Fast Rendering v0.9.6: strict UTF-8 first, then lenient decoding.
+- The access-order file is now saved with each index flush and merged with the previous order, so short, failed, or force-closed launches no longer replace a good order.
 
 ## v0.4
 
