@@ -2,7 +2,7 @@
 param(
     [string] $JdkHome = $env:JAVA_HOME,
     [string] $Version = '0.5.0',
-    [string] $OutputPath = (Join-Path $PSScriptRoot "build\fr-resource-cache-agent-$Version.jar")
+    [string] $OutputPath = (Join-Path $PSScriptRoot 'build\fr-resource-cache-agent.jar')
 )
 
 $ErrorActionPreference = 'Stop'

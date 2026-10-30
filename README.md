@@ -23,8 +23,8 @@ Fast Rendering v0.9.6 and v0.8.8 are explicitly recognized as compatible release
 ## Installation
 
 1. Install Fast Rendering. (Link is above)
-2. Download `fr-resource-cache-agent-0.5.0.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
-3. Rename it to `fr-resource-cache-agent.jar`, then copy it into the Starsector `starsector-core` directory alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
+2. Download `fr-resource-cache-agent.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
+3. Copy it into the Starsector `starsector-core` directory alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
 
    ```text
    Starsector/
