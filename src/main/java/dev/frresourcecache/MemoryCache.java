@@ -1,8 +1,9 @@
 package dev.frresourcecache;
 
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,25 +17,38 @@ final class MemoryCache {
         this.limit = Math.max(0L, limit);
     }
 
-    synchronized byte[] get(String key, Path source) {
-        long modified;
-        long size;
-        Hot hot = this.map.get(key);
-        if (hot == null) {
-            return null;
+    byte[] get(String key, Path source, BasicFileAttributes attributes, ValidationMode validationMode) {
+        Hot hot;
+        synchronized (this) {
+            hot = this.map.get(key);
+            if (hot == null) {
+                return null;
+            }
+            if (attributes.size() != hot.sourceSize
+                    || attributes.lastModifiedTime().toMillis() != hot.sourceModified) {
+                this.remove(key, hot);
+                return null;
+            }
         }
-        try {
-            size = Files.size(source);
-            modified = Files.getLastModifiedTime(source, LinkOption.NOFOLLOW_LINKS).toMillis();
-        } catch (Exception exception) {
-            this.map.remove(key);
-            this.currentBytes -= (long)hot.bytes.length;
-            return null;
-        }
-        if (size != hot.sourceSize || modified != hot.sourceModified) {
-            this.map.remove(key);
-            this.currentBytes -= (long)hot.bytes.length;
-            return null;
+        if (validationMode != ValidationMode.METADATA) {
+            Fingerprint.Algorithm algorithm = Fingerprint.algorithmFor(validationMode);
+            try {
+                byte[] sourceFingerprint =
+                        Fingerprint.computeFromFile(algorithm, source, attributes.size());
+                byte[] cachedFingerprint = Fingerprint.compute(algorithm, hot.bytes);
+                if (!Arrays.equals(sourceFingerprint, cachedFingerprint)) {
+                    synchronized (this) {
+                        this.remove(key, hot);
+                    }
+                    return null;
+                }
+            }
+            catch (Exception exception) {
+                synchronized (this) {
+                    this.remove(key, hot);
+                }
+                return null;
+            }
         }
         return hot.bytes;
     }
@@ -56,6 +70,13 @@ final class MemoryCache {
         Hot hot = this.map.remove(key);
         if (hot != null) {
             this.currentBytes -= (long)hot.bytes.length;
+        }
+    }
+
+    private void remove(String key, Hot expected) {
+        if (this.map.get(key) == expected) {
+            this.map.remove(key);
+            this.currentBytes -= (long)expected.bytes.length;
         }
     }
 

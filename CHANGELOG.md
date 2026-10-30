@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.5.0
+
+### Added
+
+- Added bounded asynchronous persistence for first-launch cache misses.
+- Added persistent startup access-order tracking and access-ordered pack compaction.
+- Added Fast Rendering v0.8.8 and v0.9.6 to the explicitly recognized compatible releases.
+
+### Changed
+
+- Cache hits now reuse one source metadata snapshot instead of repeating size and modification-time filesystem calls.
+- The writer queue defaults to 256 entries and 32 MiB; saturated writes are skipped rather than blocking startup.
+- Shutdown now drains queued writes (waiting at most 10 seconds) before flushing the index and reports the pack size before closing it.
+
+### Fixed
+
+- Existing entries now upgrade when the configured validation mode changes from `metadata` to `sampled` or `strong`.
+- Memory-cache hits now enforce sampled or strong fingerprints, detecting same-size, same-timestamp source changes.
+- Scheduled index flushes and queued writes can no longer race pack closure during normal shutdown.
+- Fixed the cache-read fallback in the injected `ResourceHandle`, which called a method absent from Fast Rendering v0.9.6.
+- Agent startup, hook installation, and the injected `ResourceHandle` now fall back to original files on any error, so unrecognized or incompatible Fast Rendering builds cannot prevent the game from running.
+- Cached text decoding now matches Fast Rendering v0.9.6: strict UTF-8 first, then lenient decoding.
+- The access-order file is now saved with each index flush and merged with the previous order, so short, failed, or force-closed launches no longer replace a good order.
+
 ## v0.4
 
 ### Added
