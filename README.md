@@ -6,6 +6,12 @@ Fast Rendering normally opens thousands of small files from Starsector and its i
 
 This is an add-on for Fast Rendering, not a standalone Starsector mod. It does not go in the `mods` directory and will not appear in the launcher's mod list.
 
+## License and disclaimer
+
+Released into the public domain under [The Unlicense](LICENSE). Anyone may use, copy, modify, and redistribute it for any purpose.
+
+This is an unofficial third-party add-on. It is not affiliated with or endorsed by Fast Rendering's author, Fractal Softworks, or the Starsector developers. It changes Fast Rendering's behavior at runtime and is provided as-is, without warranty. Disable it before reporting problems to the Fast Rendering author.
+
 ## Requirements
 
 - Starsector with a working Fast Rendering installation
