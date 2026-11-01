@@ -21,7 +21,19 @@ public final class FallbackTest {
                     "null target class");
             check(CompatibilityRegistry.find("0000") == null, "unknown hash");
             check(CompatibilityRegistry.find(
-                    "4643c5ab517301903523736bce50aaa65dc40e64196289cad0d502c575826dd4") != null, "0.9.6 hash");
+                    "6abd30edd511886ce2204c8f9948bf35ae21f1064d7a4bf2e80588fccbcac18c") != null, "0.9.8rc1 hash");
+
+            if (args.length > 0) {
+                try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(args[0])) {
+                    byte[] real = zip.getInputStream(zip.getEntry(CompatibilityRegistry.TARGET_CLASS + ".class"))
+                            .readAllBytes();
+                    check(ClassFileValidator.isPlausibleResourceHandle(real, CompatibilityRegistry.TARGET_CLASS,
+                            CompatibilityRegistry.REQUIRED_METHODS,
+                            CompatibilityRegistry.REQUIRED_FIELD_REFERENCES), "real FR class passes structure check");
+                    byte[] payload = transformer.transform(null, null, CompatibilityRegistry.TARGET_CLASS, null, null, real);
+                    check(payload != null && payload.length > 0, "real FR class is replaced");
+                }
+            }
 
             Path file = dir.resolve("a.txt");
             Files.writeString(file, "hello");

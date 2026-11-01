@@ -8,22 +8,19 @@ final class CompatibilityRegistry {
     static final String COMPATIBILITY_PAYLOAD =
             "/payload/com/genir/renderer/overrides/loading/ResourceHandle.v1.class.bin";
     static final Set<String> REQUIRED_METHODS = Set.of(
-            "<init>:(Lcom/genir/renderer/overrides/loading/ResourceHandle$FileHandle;)V",
+            "<init>:(Ljava/io/File;Lcom/genir/renderer/overrides/loading/FileLoader$ResourceLocation;Ljava/lang/String;)V",
             "getString:()Ljava/lang/String;",
+            "getFile:()Ljava/io/File;",
             "getFilePath:()Ljava/nio/file/Path;",
-            "read:()I",
-            "close:()V");
+            "getLocation:()Lcom/genir/renderer/overrides/loading/FileLoader$ResourceLocation;",
+            "isCoreFile:()Z");
     static final Set<String> REQUIRED_FIELD_REFERENCES = Set.of(
-            "com/genir/renderer/overrides/loading/ResourceHandle$FileHandle.file:Ljava/io/File;",
-            "com/genir/renderer/overrides/loading/ResourceHandle$FileHandle.cachedContents:Ljava/lang/String;");
+            "com/genir/renderer/overrides/loading/ResourceHandle.file:Ljava/io/File;",
+            "com/genir/renderer/overrides/loading/ResourceHandle.cachedString:Ljava/lang/String;");
     static final List<SupportedBuild> SUPPORTED_BUILDS = List.of(
             new SupportedBuild(
-                    "6b29c9f634b756a1e0d0bdd3a69bd6f62758b62ec3d3a1d6f8635be628a60600",
-                    "Fast Rendering 0.8.5rc2 / 0.8.7rc1 / 0.8.7 / 0.8.8",
-                    COMPATIBILITY_PAYLOAD),
-            new SupportedBuild(
-                    "4643c5ab517301903523736bce50aaa65dc40e64196289cad0d502c575826dd4",
-                    "Fast Rendering 0.9.6",
+                    "6abd30edd511886ce2204c8f9948bf35ae21f1064d7a4bf2e80588fccbcac18c",
+                    "Fast Rendering 0.9.8rc1",
                     COMPATIBILITY_PAYLOAD));
 
     private CompatibilityRegistry() {

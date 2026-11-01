@@ -68,7 +68,7 @@ final class AgentConfig {
         Path installRoot = resolve(gameRoot, options.get("installRoot"), defaultInstallRoot);
         Path cacheDir = resolve(gameRoot, options.get("cacheDir"), gameRoot.resolve("../fr-resource-cache"));
         long maxFileSize = parseLong(options.get("maxFileSize"), 1_048_576L, 1L, 16_777_216L);
-        long memoryLimit = parseLong(options.get("memoryCacheMiB"), 128L, 0L, 4096L) * 1_048_576L;
+        long memoryLimit = parseLong(options.get("memoryCacheMiB"), 0L, 0L, 4096L) * 1_048_576L;
         int flushDelaySeconds = (int) parseLong(options.get("flushDelaySeconds"), 30L, 0L, 3600L);
 
         HashSet<String> extensions = new HashSet<>();

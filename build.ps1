@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string] $JdkHome = $env:JAVA_HOME,
-    [string] $Version = '0.5.0',
+    [string] $Version = '0.6.0',
     [string] $OutputPath = (Join-Path $PSScriptRoot 'build\fr-resource-cache-agent.jar')
 )
 
@@ -42,7 +42,14 @@ $payloadSources = Get-ChildItem (Join-Path $PSScriptRoot 'src\payload\java') -Re
 & $javac --release 17 -encoding UTF-8 -d $agentClasses $agentSources
 if ($LASTEXITCODE) { throw "Agent compilation failed with exit code $LASTEXITCODE." }
 
-& $javac --release 17 -encoding UTF-8 -cp $agentClasses -d $payloadClasses $payloadSources
+$stubClasses = Join-Path $buildRoot 'stub-classes'
+New-Item $stubClasses -ItemType Directory -Force | Out-Null
+$stubSources = Get-ChildItem (Join-Path $PSScriptRoot 'src\payload-stubs\java') -Recurse -Filter *.java |
+    ForEach-Object FullName
+& $javac --release 17 -encoding UTF-8 -d $stubClasses $stubSources
+if ($LASTEXITCODE) { throw "Stub compilation failed with exit code $LASTEXITCODE." }
+
+& $javac --release 17 -encoding UTF-8 -cp "$agentClasses;$stubClasses" -d $payloadClasses $payloadSources
 if ($LASTEXITCODE) { throw "Payload compilation failed with exit code $LASTEXITCODE." }
 
 Copy-Item (Join-Path $agentClasses '*') $staging -Recurse
@@ -70,7 +77,7 @@ Remove-Item $OutputPath -Force -ErrorAction SilentlyContinue
 & $jar --create --file $OutputPath --manifest $manifest -C $staging .
 if ($LASTEXITCODE) { throw "JAR creation failed with exit code $LASTEXITCODE." }
 
-Remove-Item $agentClasses, $payloadClasses, $staging -Recurse -Force
+Remove-Item $agentClasses, $payloadClasses, $stubClasses, $staging -Recurse -Force
 Remove-Item $manifest -Force
 
 Write-Host "Built $OutputPath"
