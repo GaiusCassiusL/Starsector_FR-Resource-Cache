@@ -197,36 +197,6 @@ public final class ResourcePackCache {
         }
     }
 
-    public static InputStream open(File file) throws IOException {
-        if (!enabled || file == null) {
-            STATS.recordBypass("(none)", SourceCategory.OTHER);
-            return Files.newInputStream(ResourcePackCache.requireNonNullFile(file).toPath(), new OpenOption[0]);
-        }
-        Path path = file.toPath().toAbsolutePath().normalize();
-        String text = ResourcePackCache.extensionOf(path);
-        AgentConfig settings = config;
-        SourceCategory sourceCategory = SourceCategory.classify(settings.installRoot, path);
-        if (!ResourcePackCache.eligible(path, text, settings)) {
-            STATS.recordBypass(text, sourceCategory);
-            return Files.newInputStream(path, new OpenOption[0]);
-        }
-        BasicFileAttributes attributes;
-        try {
-            attributes = Files.readAttributes(
-                    path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-        }
-        catch (IOException exception) {
-            STATS.recordBypass(text, sourceCategory);
-            return Files.newInputStream(path, new OpenOption[0]);
-        }
-        if (attributes.size() > settings.maxFileSize) {
-            STATS.recordBypass(text, sourceCategory);
-            return Files.newInputStream(path, new OpenOption[0]);
-        }
-        return new ByteArrayInputStream(
-                ResourcePackCache.readEligible(path, text, sourceCategory, attributes));
-    }
-
     public static byte[] read(File file) throws IOException {
         if (!enabled || file == null) {
             STATS.recordBypass("(none)", SourceCategory.OTHER);

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.0
+
+### Changed
+
+- Rewrote the hook for Fast Rendering 0.9.8rc1, where `ResourceHandle` is a plain class built from `(File, ResourceLocation, String)` and reads text files through `getString()`.
+- Dropped support for earlier Fast Rendering versions and removed the stream (`InputStream`) read path.
+- The in-memory cache is now off by default (`memoryCacheMiB=0`), because Fast Rendering keeps each file's text itself. Set `memoryCacheMiB` to re-enable it.
+- The `\r` removal is skipped for files that contain none.
+
 ## v0.5.0
 
 ### Added

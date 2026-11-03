@@ -22,7 +22,7 @@ final class ClassFileValidator {
         try {
             ClassInfo classInfo = ClassFileValidator.parse(bytes);
             return expectedClass.equals(classInfo.thisClass)
-                    && "java/io/InputStream".equals(classInfo.superClass)
+                    && "java/lang/Object".equals(classInfo.superClass)
                     && classInfo.publicClass
                     && classInfo.publicInstanceMethodSignatures.containsAll(requiredMethods)
                     && classInfo.fieldReferences.containsAll(requiredFieldReferences);

@@ -18,7 +18,7 @@ This is an unofficial third-party add-on. It is not affiliated with or endorsed 
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
-Fast Rendering v0.9.6 and v0.8.8 are explicitly recognized as compatible releases. Fast Rendering v0.9.6 requires Starsector 0.98a-RC8.
+Fast Rendering v0.9.8rc1 is the supported release. Earlier Fast Rendering versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
 
 ## Installation
 
@@ -57,7 +57,7 @@ If you are not using the Java 28 configuration script:
 3. Add the resource-cache agent on the line before `-javaagent:fr.agent.jar`:
 
    ```text
-   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\\fr-resource-cache,flushDelaySeconds=30,memoryCacheMiB=128,maxFileSize=1048576
+   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\\fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
    -javaagent:fr.agent.jar
    ```
 
@@ -101,7 +101,7 @@ Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering con
 
 ```text
 [FR Resource Cache] agent v0.5.0 enabled; cache directory: ...
-[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle
+[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8rc1)
 ```
 
 A cache summary is printed when the game exits.

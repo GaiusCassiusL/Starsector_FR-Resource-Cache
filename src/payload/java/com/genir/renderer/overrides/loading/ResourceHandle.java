@@ -4,119 +4,75 @@ import dev.frresourcecache.ResourcePackCache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ResourceHandle extends InputStream {
-    public static class FileHandle {
-        public final File file = null;
-        public String cachedContents;
-    }
+public class ResourceHandle {
+    private final File file;
+    private final Path filePath;
+    private final FileLoader.ResourceLocation location;
 
-    private final FileHandle fileHandle;
-    private InputStream fileStream;
-    private boolean streamOpened;
-    private boolean closed;
+    private String cachedString = null;
 
-    public ResourceHandle(FileHandle fileHandle) {
-        this.fileHandle = fileHandle;
-    }
+    public ResourceHandle(File file, FileLoader.ResourceLocation location, String extension) {
+        this.file = file;
+        this.filePath = file.toPath();
+        this.location = location;
 
-    public String getString() throws IOException {
-        if (this.fileHandle.cachedContents == null) {
-            byte[] bytes;
-            try {
-                bytes = ResourcePackCache.read(this.fileHandle.file);
+        try {
+            if (preloadString(extension)) {
+                getString();
             }
-            catch (Exception | LinkageError exception) {
-                try (FileInputStream input = new FileInputStream(this.fileHandle.file)) {
-                    bytes = input.readAllBytes();
+        } catch (IOException ignored) {
+        }
+    }
+
+    public boolean isCoreFile() {
+        return !location.ResourceLocation_isMod;
+    }
+
+    synchronized public String getString() throws IOException {
+        if (cachedString == null) {
+            String text = null;
+            try {
+                byte[] bytes = ResourcePackCache.read(file);
+                text = StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
+            } catch (Exception | LinkageError e) {
+                text = null;
+            }
+
+            if (text == null) {
+                try {
+                    text = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+                } catch (Exception e) {
+                    text = LoadingUtils.readStreamAsString_vanilla(new FileInputStream(file));
                 }
             }
-            try {
-                this.fileHandle.cachedContents = StandardCharsets.UTF_8.newDecoder()
-                        .decode(ByteBuffer.wrap(bytes)).toString();
-            }
-            catch (CharacterCodingException exception) {
-                this.fileHandle.cachedContents = new String(bytes, StandardCharsets.UTF_8);
-            }
-            this.fileHandle.cachedContents = this.fileHandle.cachedContents.replaceAll("\\r", "");
+
+            cachedString = text.indexOf('\r') < 0 ? text : text.replace("\r", "");
         }
-        return this.fileHandle.cachedContents;
+
+        return cachedString;
+    }
+
+    public File getFile() {
+        return file;
     }
 
     public Path getFilePath() {
-        return this.fileHandle.file.toPath();
+        return filePath;
     }
 
-    private InputStream stream() throws IOException {
-        if (this.closed) {
-            throw new IOException("stream closed");
-        }
-        if (this.fileStream == null) {
-            try {
-                this.fileStream = ResourcePackCache.open(this.fileHandle.file);
-            }
-            catch (Exception | LinkageError exception) {
-                this.fileStream = new FileInputStream(this.fileHandle.file);
-            }
-            this.streamOpened = true;
-        }
-        return this.fileStream;
+    public FileLoader.ResourceLocation getLocation() {
+        return location;
     }
 
-    @Override
-    public int read() throws IOException {
-        return this.stream().read();
-    }
-
-    @Override
-    public int read(byte[] bytes) throws IOException {
-        return this.stream().read(bytes);
-    }
-
-    @Override
-    public int read(byte[] bytes, int offset, int length) throws IOException {
-        return this.stream().read(bytes, offset, length);
-    }
-
-    @Override
-    public byte[] readAllBytes() throws IOException {
-        return this.stream().readAllBytes();
-    }
-
-    @Override
-    public byte[] readNBytes(int length) throws IOException {
-        return this.stream().readNBytes(length);
-    }
-
-    @Override
-    public long transferTo(OutputStream output) throws IOException {
-        return this.stream().transferTo(output);
-    }
-
-    @Override
-    public long skip(long count) throws IOException {
-        return this.stream().skip(count);
-    }
-
-    @Override
-    public int available() throws IOException {
-        return this.stream().available();
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (this.closed) {
-            return;
-        }
-        this.closed = true;
-        if (this.streamOpened && this.fileStream != null) {
-            this.fileStream.close();
-        }
+    private boolean preloadString(String extension) {
+        return switch (extension) {
+            case "txt", "json", "csv", "skill", "faction", "variant", "skin", "system", "wpn", "ship", "proj" -> true;
+            default -> false;
+        };
     }
 }
