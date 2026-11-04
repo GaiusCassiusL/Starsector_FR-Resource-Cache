@@ -14,11 +14,11 @@ This is an unofficial third-party add-on. It is not affiliated with or endorsed 
 
 ## Requirements
 
-- Starsector with a working Fast Rendering installation
+- Starsector with Fast Rendering 0.9.8 installed
 
-The agent structurally validates Fast Rendering's resource-loader class before changing it. Known builds are identified by hash. Unknown builds and forks that retain the required `ResourceHandle` API are enabled in compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
+Fast Rendering 0.9.8rc1 is the supported release. Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
 
-Fast Rendering v0.9.8rc1 is the supported release. Earlier Fast Rendering versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
+The agent structurally validates Fast Rendering's resource-loader class before changing it. The 0.9.8 build is identified by hash. Other builds and forks that retain the required `ResourceHandle` API are enabled in untested compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
 ## Installation
 
@@ -39,9 +39,9 @@ Fast Rendering v0.9.8rc1 is the supported release. Earlier Fast Rendering versio
 
 ### Java 28 `Configure_Me.cmd` setup
 
-If you use the [Mikohime Unofficial Java 28 Configurator](https://github.com/GaiusCassiusL/Starsector_Mikohime-Unofficial-Java28-Configurator) mod, run `Configure_Me.cmd` after copying the `fr-resource-cache-agent.jar` into `starsector-core`. The configuration script detects the JAR and gives you the option to enable the resource-cache agent . No manual `fr.vmparams` changes are required.
+If you use the [Mikohime Unofficial Java 28 Configurator](https://github.com/GaiusCassiusL/Starsector_Mikohime-Unofficial-Java28-Configurator) mod, run `Configure_Me.cmd` after copying the `fr-resource-cache-agent.jar` into `starsector-core`. The configuration script detects the JAR and gives you the option to enable the resource-cache agent. No manual `fr.vmparams` changes are required.
 
-After the script finishes, start Starsector normally with the `Miko_Rouge.bat`
+After the script finishes, start Starsector normally with `Miko_Rouge.bat`.
 
 ### Manual setup
 
@@ -54,29 +54,47 @@ If you are not using the Java 28 configuration script:
    -javaagent:fr.agent.jar
    ```
 
-3. Add the resource-cache agent on the line before `-javaagent:fr.agent.jar`:
+   3. Add the resource-cache agent on the line before `-javaagent:fr.agent.jar`, using the example for your operating system below.
+   4. Save the file and start Starsector.
+
+   #### Windows
 
    ```text
-   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\\fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
+   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
    -javaagent:fr.agent.jar
    ```
 
-4. Save the file and start Starsector with `fr.bat`.
+   Start Starsector with `fr.bat`.
+
+   #### Linux
+
+   ```text
+   -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=.,cacheDir=./fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
+   -javaagent:fr.agent.jar
+   ```
+
+   Start Starsector with its normal Fast Rendering launch script.
 
 The first launch reads resources normally while building the cache. The improvement is most noticeable on subsequent launches.
 
-## v0.5 behavior
+## Write behavior and validation
 
-v0.5 writes new cache misses on one bounded background thread so the game can continue loading while the pack is updated. The queue retains at most 256 entries and 32 MiB by default. If either limit is reached, that entry is not persisted; the source read still succeeds and the agent can cache it on a later launch.
+The agent writes new cache misses on one bounded background thread so the game can continue loading while the pack is updated. The queue retains at most 256 entries and 32 MiB by default. If either limit is reached, that entry is not persisted; the source read still succeeds and the agent can cache it on a later launch.
 
 The agent also records the first-access order of eligible resources. When compaction is next required, live pack entries are rewritten in the previous launch's startup order to favor sequential reads.
 
-Validation-mode changes now take effect for existing entries. Switching from `metadata` to `sampled` or `strong` upgrades entries as they are used, and the memory cache applies the selected fingerprint validation instead of relying only on size and modification time.
+Validation-mode changes take effect for existing entries. Switching from `metadata` to `sampled` or `strong` upgrades entries as they are used.
+
+The in-memory cache is off by default. Set `memoryCacheMiB` to enable it; it then applies the selected validation mode.
 
 Optional agent settings:
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
+| `memoryCacheMiB` | `0` | In-memory cache size in MiB (0 disables it, maximum 4096). |
+| `flushDelaySeconds` | `30` | Delay before pending index changes are flushed. |
+| `maxFileSize` | `1048576` | Largest file, in bytes, that is cached (maximum 16777216). |
+| `extensions` | built-in list | Semicolon-separated file extensions to cache, e.g. `.json;.csv`. |
 | `asyncWrites` | `true` | Set to `false` to persist cache misses synchronously. |
 | `writeQueueEntries` | `256` | Maximum number of queued writes. |
 | `writeQueueMiB` | `32` | Maximum source bytes retained by queued writes. |
@@ -91,7 +109,7 @@ The cache is stored in `<Starsector>/fr-resource-cache` as:
 - `resources.order` — first-access order used by the next compaction
 - `cache.lock` — prevents multiple game processes from writing the cache at once
 
-Cached entries are checked against the source file's size and modification time. Changed resources are read from their original files and written back to the cache automatically. Unsupported, oversized, or otherwise ineligible files continue through Fast Rendering's normal file-loading path.
+By default, cached entries are checked against the source file's size and modification time (`validationMode=metadata`). Changed resources are read from their original files and written back to the cache automatically. Unsupported, oversized, or otherwise ineligible files continue through Fast Rendering's normal file-loading path.
 
 The cache is an optimization only. If it cannot be initialized, read, or written, the agent falls back to the original files rather than preventing the game from loading.
 
@@ -100,8 +118,8 @@ The cache is an optimization only. If it cannot be initialized, read, or written
 Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering console. A successful installation reports messages similar to:
 
 ```text
-[FR Resource Cache] agent v0.5.0 enabled; cache directory: ...
-[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8rc1)
+[FR Resource Cache] agent v0.6.0 enabled; cache directory: ...
+[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8)
 ```
 
 A cache summary is printed when the game exits.
