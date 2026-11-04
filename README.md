@@ -16,7 +16,7 @@ This is an unofficial third-party add-on. It is not affiliated with or endorsed 
 
 - Starsector with Fast Rendering 0.9.8 installed
 
-Fast Rendering 0.9.8rc1 is the supported release. Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
+Fast Rendering 0.9.8 is the supported release. Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. The 0.9.8 build is identified by hash. Other builds and forks that retain the required `ResourceHandle` API are enabled in untested compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
