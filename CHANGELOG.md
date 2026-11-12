@@ -4,8 +4,8 @@
 
 ### Changed
 
-- Added support for Fast Rendering 1.0.0rc1. Its `ResourceHandle` is identical to 0.9.8rc1, so the existing hook applies unchanged.
-- Documentation: Fast Rendering 1.0.0rc1 has no `fr.agent.jar`; use `-javaagent:fr.jar` in `fr.vmparams`.
+- Targets Fast Rendering 1.0.0 (verified against 1.0.0rc1). Fast Rendering 0.9.8rc1 is no longer a documented target, because it requires `-javaagent:fr.agent.jar`.
+- Documentation: Fast Rendering 1.0.0 has no `fr.agent.jar`; use `-javaagent:fr.jar` in `fr.vmparams`.
 
 ## v0.6.0
 
