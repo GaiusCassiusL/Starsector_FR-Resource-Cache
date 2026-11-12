@@ -14,24 +14,23 @@ This is an unofficial third-party add-on. It is not affiliated with or endorsed 
 
 ## Requirements
 
-- Starsector with Fast Rendering 0.9.8 installed
+- Starsector with Fast Rendering 1.0.0rc1 installed
 
-Fast Rendering 0.9.8 is the supported release. Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
+Fast Rendering 1.0.0rc1 is the supported release (0.9.8rc1 uses an identical `ResourceHandle` and also works). Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
 
-The agent structurally validates Fast Rendering's resource-loader class before changing it. The 0.9.8 build is identified by hash. Other builds and forks that retain the required `ResourceHandle` API are enabled in untested compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
+The agent structurally validates Fast Rendering's resource-loader class before changing it. These builds are identified by hash. Other builds and forks that retain the required `ResourceHandle` API are enabled in untested compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
 ## Installation
 
 1. Install Fast Rendering. (Link is above)
 2. Download `fr-resource-cache-agent.jar` from this repository's [Releases](https://github.com/GaiusCassiusL/Starsector_FR-Resource-Cache/releases).
-3. Copy it into the Starsector `starsector-core` directory alongside `fr.jar`, `fr.agent.jar`, and `fr.vmparams`:
+3. Copy it into the Starsector `starsector-core` directory alongside `fr.jar` and `fr.vmparams`:
 
    ```text
    Starsector/
    ├── mods/
    └── starsector-core/
        ├── fr-resource-cache-agent.jar
-       ├── fr.agent.jar
        ├── fr.jar
        ├── fr.vmparams
        └── fr.bat
@@ -51,17 +50,17 @@ If you are not using the Java 28 configuration script:
 2. Find Fast Rendering's existing agent entry:
 
    ```text
-   -javaagent:fr.agent.jar
+   -javaagent:fr.jar
    ```
 
-   3. Add the resource-cache agent on the line before `-javaagent:fr.agent.jar`, using the example for your operating system below.
+   3. Add the resource-cache agent on the line before `-javaagent:fr.jar`, using the example for your operating system below.
    4. Save the file and start Starsector.
 
    #### Windows
 
    ```text
    -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=..,cacheDir=..\fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
-   -javaagent:fr.agent.jar
+   -javaagent:fr.jar
    ```
 
    Start Starsector with `fr.bat`.
@@ -70,7 +69,7 @@ If you are not using the Java 28 configuration script:
 
    ```text
    -javaagent:fr-resource-cache-agent.jar=gameRoot=.,installRoot=.,cacheDir=./fr-resource-cache,flushDelaySeconds=30,maxFileSize=1048576
-   -javaagent:fr.agent.jar
+   -javaagent:fr.jar
    ```
 
    Start Starsector with its normal Fast Rendering launch script.
@@ -118,8 +117,8 @@ The cache is an optimization only. If it cannot be initialized, read, or written
 Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering console. A successful installation reports messages similar to:
 
 ```text
-[FR Resource Cache] agent v0.6.0 enabled; cache directory: ...
-[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8)
+[FR Resource Cache] agent v0.6.1 enabled; cache directory: ...
+[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8rc1 / 1.0.0rc1)
 ```
 
 A cache summary is printed when the game exits.
