@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string] $JdkHome = $env:JAVA_HOME,
-    [string] $Version = '0.6.0',
+    [string] $Version = '0.6.1',
     [string] $OutputPath = (Join-Path $PSScriptRoot 'build\fr-resource-cache-agent.jar')
 )
 

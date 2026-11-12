@@ -117,7 +117,7 @@ The cache is an optimization only. If it cannot be initialized, read, or written
 Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering console. A successful installation reports messages similar to:
 
 ```text
-[FR Resource Cache] agent v0.6.0 enabled; cache directory: ...
+[FR Resource Cache] agent v0.6.1 enabled; cache directory: ...
 [FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8rc1 / 1.0.0rc1)
 ```
 
