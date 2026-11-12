@@ -14,9 +14,9 @@ This is an unofficial third-party add-on. It is not affiliated with or endorsed 
 
 ## Requirements
 
-- Starsector with Fast Rendering 1.0.0rc1 installed
+- Starsector with Fast Rendering 1.0.0 installed
 
-Fast Rendering 1.0.0rc1 is the supported release (0.9.8rc1 uses an identical `ResourceHandle` and also works). Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
+Fast Rendering 1.0.0 is the supported release. Earlier versions are not supported: their `ResourceHandle` has a different shape, so the agent leaves them unchanged and the game runs without the cache.
 
 The agent structurally validates Fast Rendering's resource-loader class before changing it. These builds are identified by hash. Other builds and forks that retain the required `ResourceHandle` API are enabled in untested compatibility mode with a warning; structurally incompatible builds are left unchanged and the game continues without resource caching.
 
@@ -118,7 +118,7 @@ Look for messages beginning with `[FR Resource Cache]` in the Fast Rendering con
 
 ```text
 [FR Resource Cache] agent v0.6.1 enabled; cache directory: ...
-[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 0.9.8rc1 / 1.0.0rc1)
+[FR Resource Cache] installed packed-stream hook into Fast Rendering ResourceHandle (Fast Rendering 1.0.0)
 ```
 
 A cache summary is printed when the game exits.
